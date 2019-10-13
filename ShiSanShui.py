@@ -2,6 +2,13 @@
 import os
 import re
 # classify
+# def cnt_to_all(t):  # 6: 16\17\18\19
+#     x = 4 * t
+#     for i in range(13):
+#         if num_all[i] >= x and num_all[i] <= x+3:
+#             n=i
+#             break
+#     return n
 def check_double(num):
     cnt=0
     double=[]
@@ -11,9 +18,20 @@ def check_double(num):
             cnt+=1
             temp.append(i)
             temp.append(i)
+            #temp=cnt_to_all(temp)
             double.append(temp)
             temp=[]
     return cnt, double
+def find_double(num):##直接从cnt_all找出对子的数值    #未完成
+    double=[]
+    temp=[]
+    for i in range(13):
+        for j in range(4):
+            t = j*4
+            if num[i]>=t and num[i]<=t+3:
+                cnt++
+        if cnt==2:
+            double.append(num[i])
 def check_triple(num):
     cnt=0
     triple=[]
@@ -27,34 +45,50 @@ def check_triple(num):
             triple.append(temp)
     return cnt, triple
 def check_straight(tnum):
-    straight=[]
-    temp=[]
-    cnt=0
-    t=0
-    i=0
-    while(i<9):
+    straight = []
+    temp = []
+    cnt = 0
+    i = 0
+    while i < 9:
         if tnum[i] and tnum[i+1] and tnum[i+2] and tnum[i+3] and tnum[i+4]:
             cnt+=1
             for t in range(5):
                 tnum[i+t]-=1
                 temp.append(i+t)
             straight.append(temp)
+            temp=[]
             i+=1
         else:
             i+=1
     return cnt, straight
-def check_samecolor(color):
+def check_samecolor(num):
     samecolor=[]
+    heit= []
+    hongt= []
+    meih= []
+    fangk= []
     cnt=0
-    for i in color:
-        if len(color[i]) >= 10:
-            cnt+=2
-            samecolor.append(color[i])
-        elif len(color[i]) >= 5:
-            cnt+=1
-            samecolor.append(color[i])
+    for i in range(0, 13, 1):
+        if num[i] % 4 == 0:
+            heit.append(num[i])
+        elif num[i] % 4 == 1:
+            hongt.append(num[i])
+        elif num[i] % 4 == 2:
+            meih.append(num[i])
         else:
-            cnt=cnt
+            fangk.append(num[i])
+    if len(heit) > 4:
+        samecolor.append(heit)
+        cnt+= 1
+    if len(hongt) > 4:
+        samecolor.append(hongt)
+        cnt+=1
+    if len(meih) > 4:
+        samecolor.append(meih)
+        cnt+= 1
+    if len(fangk) > 4:
+        samecolor.append(fangk)
+        cnt+=1
     return cnt, samecolor
 # def check_tripledouble():
 #     cnt=0
@@ -98,6 +132,7 @@ def classify_clr(): #根据花色不同分成四组
             i = i+1
         else:
             i=i+1
+
     value.append(heitao)
     value.append(hongtao)
     value.append(meihua)
@@ -114,7 +149,6 @@ def classify_num():#数字数组
     for j in range(0,52,1):
         st.append(0)
     for t in poker:
-        i=0
         if t=='$' or t=='&' or t=='*' or t=='#':    #0-51: heitao 2,hongtao2,meihua2,fangkuai2,3..51
             if t=='$':
                 i=0
@@ -169,22 +203,33 @@ def classify_num():#数字数组
     for i in range(52):
         if st[i] >0 :
             cntn.append(i)
+
     return cntf, cntn
 
 
 num_cnt = []
 num_all = []
 color = []
-style=[]
+style = []
+up = []
+mid = []
+down = []
+result = []
 
 poker = input()
 color = classify_clr()
-num_cnt, num_all= classify_num()
-
+num_cnt, num_all = classify_num()
 print(num_cnt)
 print(num_all)
 
-cnt, style=check_samecolor(color)   #返回同花个数
+cnt, style=check_straight(num_cnt)      #顺子
+print("shunzi:")
+print(cnt)
+print(style)
+#if cnt:
+
+
+cnt, style=check_samecolor(num_all)   #返回同花个数
 print("samecolr:")
 print(cnt)
 print(style)
@@ -196,11 +241,6 @@ print(style)
 
 cnt, style=check_triple(num_cnt)    #三条
 print("triple:")
-print(cnt)
-print(style)
-
-cnt, style=check_straight(num_cnt)      #顺子
-print("shunzi:")
 print(cnt)
 print(style)
 
