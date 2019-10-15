@@ -9,66 +9,92 @@ import re
 #             n=i
 #             break
 #     return n
-def check_double(num):
-    cnt=0
-    double=[]
-    temp=[]
-    for i in range(13):
-        if num[i]==2:
-            cnt+=1
-            temp.append(i)
-            temp.append(i)
-            #temp=cnt_to_all(temp)
-            double.append(temp)
-            temp=[]
-    return cnt, double
-def find_double(num):##直接从cnt_all找出对子的数值    #未完成
-    double=[]
-    temp=[]
-    for i in range(13):
-        for j in range(4):
-            t = j*4
-            if num[i]>=t and num[i]<=t+3:
-                cnt++
-        if cnt==2:
-            double.append(num[i])
-def check_triple(num):
-    cnt=0
-    triple=[]
-    temp=[]
-    for i in range(13):
-        if num[i]==3:
-            cnt+=1
-            temp.append(i)
-            temp.append(i)
-            temp.append(i)
-            triple.append(temp)
-    return cnt, triple
-def check_straight(tnum):
+# def check_double(num):
+#     cnt=0
+#     double=[]
+#     temp=[]
+#     for i in range(13):
+#         if num[i]==2:
+#             cnt+=1
+#             temp.append(i)
+#             temp.append(i)
+#             #temp=cnt_to_all(temp)
+#             double.append(temp)
+#             temp=[]
+#     return cnt, double
+# def find_double(num):##直接从cnt_all找出对子的数值
+#     double=[]
+#     temp=[]
+#     cnt=0
+#     for i in range(11):
+#         t = (num[i]-(num[i]%4))/4
+#         for j in range(2):
+#             if num[i+j]>=t and num[i+j]<=t+3:
+#                 cnt+=1
+#                 temp.append(num[i+j])
+#         if cnt==2:
+#             double.append(temp)
+#             i+=2
+#             temp=[]
+#     return double
+# def check_triple(num):
+#     cnt=0
+#     triple=[]
+#     temp=[]
+#     for i in range(13):
+#         if num[i]==3:
+#             cnt+=1
+#             temp.append(i)
+#             temp.append(i)
+#             temp.append(i)
+#             triple.append(temp)
+#     return cnt, triple
+# def find_triple(num):
+#     triple=[]
+#     temp=[]
+#     cnt=0
+#     for i in range(10):
+#         t = (num[i]-(num[i]%4))/4
+#         for j in range(3):
+#             if num[i+j]>=t and num[i+j]<=t+3:
+#                 cnt+=1
+#                 temp.append(num[i+j])
+#         if cnt==3:
+#             triple.append(temp)
+#             i+=3
+#             temp=[]
+#     return triple
+def check_straight(num):
+    tnum = []
     straight = []
     temp = []
     cnt = 0
     i = 0
-    while i < 9:
-        if tnum[i] and tnum[i+1] and tnum[i+2] and tnum[i+3] and tnum[i+4]:
+    while i < len(num):
+        tnum.append(num[i])
+        i+=1
+    i=12
+    while i >= 0 :
+        if tnum[i] and tnum[i-1] and tnum[i-2] and tnum[i-3] and tnum[i-4]:
             cnt+=1
             for t in range(5):
-                tnum[i+t]-=1
-                temp.append(i+t)
+                tnum[i-t]-=1
+                temp.append(i-t)
             straight.append(temp)
             temp=[]
-            i+=1
+            i-=1
         else:
-            i+=1
-    return cnt, straight
-def check_samecolor(num):
+            i-=1
+    return straight
+
+def check_samecolor(num):   #using num_all
     samecolor=[]
     heit= []
     hongt= []
     meih= []
     fangk= []
     cnt=0
-    for i in range(0, 13, 1):
+    for i in range(0, len(num), 1):
         if num[i] % 4 == 0:
             heit.append(num[i])
         elif num[i] % 4 == 1:
@@ -89,25 +115,19 @@ def check_samecolor(num):
     if len(fangk) > 4:
         samecolor.append(fangk)
         cnt+=1
-    return cnt, samecolor
-# def check_tripledouble():
-#     cnt=0
-#     if check_double() and check_triple():
-#         cnt+=1
-#     return cnt
+    return samecolor
 def check_bomb(num):
-    cnt = 0
     temp=[]
     bomb=[]
     for i in range(13):
         if num[i] == '4':
             cnt += 1
-            temp.append(i)
-            temp.append(i)
-            temp.append(i)
-            temp.append(i)
+            temp.append(i*4)
+            temp.append(i*4+1)
+            temp.append(i*4+2)
+            temp.append(i*4+3)
             bomb.append(temp)
-    return cnt, bomb
+    return bomb
 
 def classify_clr(): #根据花色不同分成四组
     i = 0
@@ -203,48 +223,272 @@ def classify_num():#数字数组
     for i in range(52):
         if st[i] >0 :
             cntn.append(i)
+    return cntf, st, cntn
 
-    return cntf, cntn
+def find_same_straight(tnum):     #同花里找顺子
+    straight = []
+    temp = []
+    cnt = 0
+    for num in tnum:
+        lens = len(num)-1
+        i=lens
+        while i > 1 :
+            if num[i] == (num[i-1]+4):
+                cnt+=1
+            else:
+                cnt=0
+            if cnt == 4:
+                for t in range(5):
+                    temp.append(num[i]+4*t -4)
+                straight.append(temp)
+                temp = []
+                i-=1
+                cnt=0
+            i-=1
+    return straight
 
 
-num_cnt = []
-num_all = []
+def check_all():
+    allStyle=[]
+    danzhang = []
+    for i in range(13):
+        if num_cnt[i] == 1:
+            for j in range(4):
+                if num_all[i * 4 + j]:
+                    danzhang.append(i*4 + j)
+                    break
+    allStyle.append(danzhang)
+
+    print("单张：",danzhang)
+
+
+    duizi = []
+    temp = []
+    i=0
+    while i<13:
+        if num_cnt[i] == 2:  # 这个数字有两张
+            print(" 两张：",i)
+            for j in range(4):
+                if num_all[i*4 + j]:
+                    temp.append(i*4 +j)
+        if len(temp)==2:
+            duizi.append(temp)
+            temp=[]
+        i+=1
+    allStyle.append(duizi)
+
+    print("对子：", duizi)
+
+    temp = []
+    santiao = []
+    for i in range(13):
+        if num_cnt[i] == 3:
+            for j in range(4):
+                if num_all[i*4 + j]:
+                    temp.append(i * 4 + j)
+        if len(temp) == 3:
+            santiao.append(temp)
+            temp =[]
+    allStyle.append(santiao)
+    print("三条：", santiao)
+
+
+    straight = check_straight(num_cnt)  # using num_cnt  返回的只是牌 没有花色
+    allStyle.append(straight)
+    print(" 顺子：", straight)
+
+    samecolor = check_samecolor(num_rcd)
+    allStyle.append(samecolor)
+    print("同花", samecolor)
+
+    hulu=[]
+    temp=[]
+    if len(santiao) and len(duizi):
+        if len(santiao) ==1 and len(duizi) ==1:
+            hulu += santiao+duizi
+        elif len(santiao) == 2 and len(duizi) ==2:
+            hulu = (santiao[1]+duizi[0])
+            hulu += (santiao[0]+duizi[1])
+        elif len(santiao) ==1 and len(duizi)==2:
+            for i in santiao:
+                temp.append(i)
+            for i in duizi[0]:
+                temp.append(i)
+            hulu.append(temp)
+    allStyle.append(hulu)       ##  bug:葫芦： [[[0, 2, 3], 9, 10]]
+
+    print("葫芦：",hulu)
+
+    bomb = check_bomb(num_all)
+    allStyle.append(bomb)
+    print("炸弹：", bomb)
+
+    samestraight = []
+    if len(samecolor):
+        samestraight = find_same_straight(samecolor)
+    allStyle.append(samestraight)
+    print("同花顺", samestraight)
+
+    return allStyle
 color = []
-style = []
 up = []
 mid = []
 down = []
 result = []
-
+allStyle = []
 poker = input()
 color = classify_clr()
-num_cnt, num_all = classify_num()
-print(num_cnt)
-print(num_all)
-
-cnt, style=check_straight(num_cnt)      #顺子
-print("shunzi:")
-print(cnt)
-print(style)
-#if cnt:
+num_cnt, num_all, num_rcd = classify_num()
+print("init cnt0:",num_cnt)  #记录某张牌的频率
+print("init all0:",num_all) #0-51 bool数组
+print("init rcd0:",num_rcd)  # 0-51 从小到大 记录出现的所有牌 13张
 
 
-cnt, style=check_samecolor(num_all)   #返回同花个数
-print("samecolr:")
-print(cnt)
-print(style)
+#找底墩
+allStyle=check_all()
+i=7
+while i>=0:
+    if len(allStyle[i]):
+        print(" 底墩牌型： ", i)
+        if i==6 or i==3 or i==2 or i==1 or i==4:
+            if i==6:    #炸弹 加一张牌 不拆顺子和同花的牌
+                down.append(allStyle[i][0])
+                for i in allStyle[0]: #去找单牌
+                    if i not in allStyle[3] or  i not in allStyle[4]:
+                        down += i
+                        break
+            elif i==4:  #同花
+                print(allStyle[i])
+                down+=(allStyle[i])
+            elif i==3:  #顺子
+                down.append(allStyle[i][0])
+                for i in down:
+                    for j in range(4):
+                        if num_all[i*4+j]:
+                            down[i]=down[i*4+j]
+                            break
+            elif i==2:# 三条
+                down.append(allStyle[i][0])
+                down += allStyle[0][0:2]
+            elif i==1:# 对子
+                if len(allStyle[i]) >= 2:# 两对
+                    down.append(allStyle[i][-1])
+                    down += allStyle[i][-2]
+                    down += allStyle[0][0]
+                else:   #一对
+                    down.append(allStyle[i][0])
+                    down += allStyle[0][0:3]
+        elif i==0 :
+            temp=allStyle[0]
+            temp=temp[-5:-1]
+            down.append(temp)
+        else:
+            down.append(allStyle[i][0])
 
-cnt, style=check_double(num_cnt)    #对子
-print("double:")
-print(cnt)
-print(style)
+        num_rcd=list(set(num_rcd).difference(set(down[0]))) #更新num_rcd
+        #更新num_all
+        i=0
+        print("底墩！！！！",down)
+        while i<5:
+            x = down[0][i]
+            num_all[x] = 0
+            i+=1
+        #更新num_cnt
+        i=0
 
-cnt, style=check_triple(num_cnt)    #三条
-print("triple:")
-print(cnt)
-print(style)
+        while i<5:
+            x = int(down[0][i]/4)
+            num_cnt[x]-=1
+            i+=1
+        break
+    i-=1
 
-cnt, style=check_bomb(num_cnt)      #炸弹
-print("boom:")
-print(cnt)
-print(style)
+print("find down!: ", down)
+print("after down cnt0:", num_cnt)  #记录某张牌的频率
+print("after down all0:", num_all)
+print("after down rcd0:", num_rcd)  # 0-51 从小到大 记录出现的所有牌
+
+#找中墩
+allStyle=check_all()
+i=7
+while i >= 0:
+    if len(allStyle[i]):
+        print(" 中墩牌型： ", i)
+        if i == 6 or i==4 or i == 3 or i == 2 or i == 1:
+            if i == 6:  # 炸弹 加一张牌 不拆顺子和同花的牌
+                print("8")
+                mid.append(allStyle[i][0])
+                for i in allStyle[0]:  # 去找单牌
+                    mid.append(i)
+                    break
+            elif i==4:
+                print("7")
+                mid.append(allStyle[i][0])
+                mid.append(allStyle[i][-5:-1])
+            elif i == 3:  # 顺子
+                print("6")
+                mid.append(allStyle[i][0])
+                for t in down:
+                    for j in range(4):
+                        if num_all[t * 4 + j]:
+                            mid[t] = mid[t * 4 + j]
+                            break
+            elif i == 2:#三条 加两张
+                print("5")
+                mid.append(allStyle[i][0])
+                mid.append(num_cnt[0:2])
+            elif i == 1:#对子
+                if len(allStyle[i]) >= 2:# 有两对
+                    temp = []
+                    print("4")
+                    temp.append(allStyle[0][0])
+                    mid = mid + allStyle[i][-1]
+                    mid = mid + allStyle[i][-2]
+                    mid = mid + temp
+                else:   #只有一对
+                    temp=[]
+                    print("3")
+                    print("对子在这里！！！")
+                    print("这是单张！！！", allStyle[0])
+                    mid+=allStyle[i][0]
+                    temp.append(allStyle[0][0])
+                    temp.append(allStyle[0][1])
+                    temp.append(allStyle[0][2])
+                    mid+=temp
+        elif i == 0:
+            print("2")
+            temp = allStyle[0]
+            temp = temp[-5:-1]
+            mid.append(temp)
+        else:
+            print("1")
+            mid.append(allStyle[i][0])
+        print(mid)
+        num_rcd = list(set(num_rcd).difference(set(mid)))  # 更新num_rcd
+        # 更新num_all
+        i=0
+        while i<5 :
+            x=mid[i]
+            num_all[x] = 0
+            i+=1
+        # 更新num_cnt
+        i=0
+        print("中墩牌型：",mid)
+        while i<5:
+            x = int(mid[i]/4)
+            num_cnt[x] -= 1
+            i+=1
+        break
+    i -= 1
+print(" after mid  cnt0:",num_cnt)  #记录某张牌的频率
+print(" after mid  all0:",num_all)
+print(" after mid  rcd0:",num_rcd)  # 0-51 从小到大 记录出现的所有牌
+
+print("mid:", mid)
+up=num_rcd
+
+result.append(up)
+result.append(mid)
+result.append(down)
+
+print("result", result)
