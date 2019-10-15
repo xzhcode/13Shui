@@ -317,7 +317,7 @@ def trans(num):
 
         temp.append(' ')
     return temp
-color = []
+
 up = []
 mid = []
 down = []
@@ -326,6 +326,7 @@ allStyle = []
 value=[]
 key=[]
 idnum=0
+dict={}
 
 name="xxx1010101"
 code="password"
