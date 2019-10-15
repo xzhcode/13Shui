@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-import time
-import re
 import json
 import http.client
 
@@ -103,10 +100,12 @@ def classify_num():#数字数组
     cntf=[]
     cntn=[]
     i=0
-    for k in range(13):
+    for i in range(13):
         cntf.append(0)
-    for j in range(0,52,1):
+    i=0
+    for i in range(0,52,1):
         st.append(0)
+    i=0
     for t in poker:
         if t=='$' or t=='&' or t=='*' or t=='#':    #0-51: heitao 2,hongtao2,meihua2,fangkuai2,3..51
             if t=='$':
@@ -239,26 +238,9 @@ def check_all():
 
     hulu=[]
     temp=[]
-    temp2=[]
     if len(santiao) and len(duizi):
         temp.append(santiao[-1] + duizi[0])
         hulu.append(temp[0])
-        # if len(santiao) ==1 and len(duizi) ==1:
-        #     temp.append(santiao[0]+duizi[0])
-        #     hulu.append(temp[0])
-        # elif len(santiao) >= 2 and len(duizi) >=2:
-        #     temp.append(santiao[-1]+duizi[0])
-        #     temp2.append(santiao[-2]+duizi[-1])
-        #     hulu.append(temp[0])
-        #     hulu.append(temp2[0])
-        #     print('000000',temp[0])
-        #     print('111111111111',temp2[0])
-        # elif len(santiao) ==1 and len(duizi) >= 2:
-        #     temp.append(santiao[0]+duizi[0])
-        #     hulu.append(temp[0])
-        # else:
-        #     temp.append(santiao[0]+duizi[0])
-        #     hulu.append(temp[0])
     allStyle.append(hulu)       ##  bug:葫芦： [[[0, 2, 3], 9, 10]] ### += append 用法
 
     print("葫芦：",hulu)
@@ -592,7 +574,7 @@ print("result", result)
 key = ['id','card']
 value.append(gameid)
 value.append(result)
-dict=dict(zip(key,value))
+dict=zip(key,value)
 jsonarr = json.dumps(dict, ensure_ascii=False,indent=True)
 print(jsonarr)
 
