@@ -1,3 +1,6 @@
-- SHISANSHUI
-- 第二次结对作业
-- 徽章：PYTHON V3.6：https://img.shields.io/badge/python-v3.6-blue
+ - SHISANSHUI
+ - 第二次结对作业
+ - 徽章：PYTHON V3.6：<https://img.shields.io/badge/python-v3.6-blue>
+ - 运行环境： PYTHON 3.7
+ - 编译方法：
+ - 使用方法：
