@@ -15,7 +15,7 @@ def check_straight(num):
         tnum.append(num[i])
         i+=1
     i=12
-    while i >= 0 :
+    while i >= 4 :
         if tnum[i] and tnum[i-1] and tnum[i-2] and tnum[i-3] and tnum[i-4]:
             cnt+=1
             for t in range(5):
@@ -44,15 +44,19 @@ def check_samecolor(num):   #using num_all
         else:
             fangk.append(num[i])
     if len(heit) > 4:
+        heit.sort()
         samecolor.append(heit)
         cnt+= 1
     if len(hongt) > 4:
+        hongt.sort()
         samecolor.append(hongt)
         cnt+=1
     if len(meih) > 4:
+        meih.sort()
         samecolor.append(meih)
         cnt+= 1
     if len(fangk) > 4:
+        fangk.sort()
         samecolor.append(fangk)
         cnt+=1
     return samecolor
@@ -61,7 +65,6 @@ def check_bomb(num):
     bomb=[]
     for i in range(13):
         if num[i] == '4':
-            cnt += 1
             temp.append(i*4)
             temp.append(i*4+1)
             temp.append(i*4+2)
@@ -228,7 +231,6 @@ def check_all():
     allStyle.append(santiao)
     print("三条：", santiao)
 
-
     straight = check_straight(num_cnt)  # using num_cnt  返回的只是牌 没有花色
     allStyle.append(straight)
     print(" 顺子：", straight)
@@ -263,7 +265,7 @@ def check_all():
 
     print("葫芦：",hulu)
 
-    bomb = check_bomb(num_all)
+    bomb = check_bomb(num_cnt)
     allStyle.append(bomb)
     print("炸弹：", bomb)
 
@@ -338,7 +340,6 @@ while tim<10:
     conn = http.client.HTTPSConnection("api.shisanshui.rtxux.xyz")
     payload = "{\"username\":\"xxx1010101\",\"password\":\"password\"}"
     headers = { 'content-type': "application/json" }
-    print('payload',payload)
     conn.request("POST", "/auth/register", payload, headers)
     res = conn.getresponse()
     data = res.read()
@@ -383,7 +384,7 @@ while tim<10:
         if len(allStyle[i]):
             if i==6 or i==3 or i==2 or i==1 or i==4:
                 if i==6:    #炸弹 加一张牌 不拆顺子和同花的牌
-                    #print(" 底墩牌型： 炸弹")
+                    print(" 底墩牌型： 炸弹")
                     down=(allStyle[i][0])
                     for i in num_rcd : #去找单牌
                         if i not in down and i not in allStyle[3][0]:
@@ -392,8 +393,8 @@ while tim<10:
                         else:
                             down = down
                 elif i==4:  #同花
-                    #print(" 底墩牌型： 同花")
-                    down=(allStyle[i][0])
+                    print(" 底墩牌型： 同花")
+                    down=(allStyle[i][-1])
                     if len(down) > 5:
                         temp = []
                         temp.append(down[-1])
@@ -403,59 +404,65 @@ while tim<10:
                         temp.append(down[-5])
                         down = temp
                 elif i==3:  #顺子
-                    #print(" 底墩牌型： 顺子")
+                    print(" 底墩牌型： 顺子")
                     down=allStyle[i][0]
                     temp=[]
                     for t in down:
-                        print(t)
                         for j in range(4):
                             if num_all[t*4+j]:
                                 temp.append(t*4+j)
                                 break
                     down=temp
                 elif i==2:# 三条
-                    #print(" 底墩牌型： 三条")
-                    down=(allStyle[i][0])
+                    print(" 底墩牌型： 三条")
+                    down=(allStyle[i][-1])
                     cnt=0
                     for i in num_rcd : #去找单牌
                         if i not in down :
-                            down += i
+                            down.append(i)
                             cnt+=1
-                            break
                         else:
                             down = down
                         if cnt ==2 :
                             break
                 elif i==1:# 对子
                     if len(allStyle[i]) >= 2:# 两对
-                        #print(" 底墩牌型： 两对")
-                        temp =[]
-                        temp.append(allStyle[i][-1][0])
-                        temp.append(allStyle[i][-1][1])
-                        temp.append(allStyle[i][-2][0])
-                        temp.append(allStyle[i][-2][1])
-                        temp.append(allStyle[0][0])
-                        down = temp
+                        if len(allStyle[i])==2:
+                            print('底墩牌型')
+                            temp = []
+                            temp.append(allStyle[i][-1][0])
+                            temp.append(allStyle[i][-1][1])
+                            temp.append(allStyle[0][0])
+                            temp.append(allStyle[0][1])
+                            temp.append(allStyle[0][2])
+                            down = temp
+                        else:
+                            print(" 底墩牌型： 两对")
+                            temp =[]
+                            temp.append(allStyle[i][-1][0])
+                            temp.append(allStyle[i][-1][1])
+                            temp.append(allStyle[i][-2][0])
+                            temp.append(allStyle[i][-2][1])
+                            temp.append(allStyle[0][0])
+                            down = temp
                     else:   #一对
                         temp = []
-                        #print(" 底墩牌型： 一对")
+                        print(" 底墩牌型： 一对")
                         temp = (allStyle[i][0])
                         temp.append(allStyle[0][0])
                         temp.append(allStyle[0][1])
                         temp.append(allStyle[0][2])
                         down = temp
             elif i==0 :
-                #print(" 底墩牌型： 乌龙")
+                print(" 底墩牌型： 乌龙")
                 temp =[]
                 temp=allStyle[0]
                 temp=temp[-5:-1]
                 temp += allStyle[0][-1]
                 down = temp
             else:
-                #print(" 底墩牌型： 葫芦 同花顺")
+                print(" 底墩牌型： 葫芦 同花顺")
                 down=(allStyle[i][0])
-            print("底墩:",down)
-            print('牌型：',i)
             num_rcd=list(set(num_rcd).difference(set(down))) #更新num_rcd
             #更新num_all
             i=0
@@ -483,7 +490,7 @@ while tim<10:
     while i >= 0:
 
         if len(allStyle[i]):
-            print("中盾牌型：")
+            print("中墩牌型：")
             if i == 6 or i==4 or i == 3 or i == 2 or i == 1:
                 if i == 6:  # 炸弹 加一张牌 不拆顺子和同花的牌
                     print("炸弹")
@@ -499,11 +506,11 @@ while tim<10:
                     mid = (allStyle[i][0])
                     if len(mid) > 5:
                         temp = []
-                        temp.append(down[-1])
-                        temp.append(down[-2])
-                        temp.append(down[-3])
-                        temp.append(down[-4])
-                        temp.append(down[-5])
+                        temp.append(mid[-1])
+                        temp.append(mid[-2])
+                        temp.append(mid[-3])
+                        temp.append(mid[-4])
+                        temp.append(mid[-5])
                         mid = temp
                 elif i == 3:  # 顺子
                     print("顺子")
@@ -517,34 +524,43 @@ while tim<10:
                                 break
                     mid=temp
                 elif i == 2:#三条 加两张
-                    print("三条")
                     temp=[]
-                    temp += (allStyle[i][0])
-                    mid=[]
+                    temp += (allStyle[i][-1])
                     cnt=0
                     for i in num_rcd : #去找单牌
-                        if i not in temp :
+                        if i not in temp:
                             temp.append(i)
-                            cnt+=1
-                            break
-                        else:
-                            temp = temp
-                        if cnt ==2 :
+                            cnt += 1
+                        if cnt == 2 :
+                            print('三条temp',temp)
                             mid = temp
                             break
                 elif i == 1:#对子
                     if len(allStyle[i]) >= 2:# 有两对
-                        temp = []
-                        print("两对")
-                        temp=allStyle[i][0][:2]
-                        temp+=allStyle[i][1][:2]
-                        mid = temp
-                        temp = []
-                        for j in num_rcd:
-                            if j not in mid:
-                                temp.append(j)
-                                break
-                        mid += temp
+                        if len(allStyle[i])==2:
+                            temp = []
+                            temp.append(allStyle[i][-1][0])
+                            temp.append(allStyle[i][-1][1])
+                            cnt=0
+                            for j in num_rcd:
+                                if j not in temp:
+                                    temp.append(j)
+                                    cnt+=1
+                                if cnt==3:
+                                    break
+                            mid=temp
+                        else:
+                            temp = []
+                            print("两对")
+                            temp.append(allStyle[i][0][0])
+                            temp.append(allStyle[i][0][1])
+                            temp.append(allStyle[i][1][0])
+                            temp.append(allStyle[i][1][0])
+                            for j in num_rcd:
+                                if j not in temp:
+                                    temp.append(j)
+                                    break
+                            mid = temp
                     else:   #只有一对
                         temp=[]
                      #   print("一对")
@@ -562,10 +578,14 @@ while tim<10:
             else:
              #   print("葫芦、同花顺")
                 mid.append(allStyle[i][0])
+            test = []
             print('mid:',mid)
-            mid=list(mid)
-            print('mid',mid)
-
+            if len(mid) == 1 or len(mid)==2:
+                test = mid[0]
+            else:
+                test = mid
+            mid = test
+            print('mid:',mid)
             num_rcd = list(set(num_rcd).difference(set(mid)))  # 更新num_rcd
             # 更新num_all
             i=0
@@ -615,7 +635,6 @@ while tim<10:
 
     #出牌
     payload = jsonarr
-    print('payload:',payload)
     headers = {
         'content-type': "application/json",
         'x-auth-token': token
@@ -623,6 +642,5 @@ while tim<10:
     conn.request("POST", "/game/submit", payload, headers)
     res = conn.getresponse()
     data = res.read()
-
     print(data)
     tim+=1
