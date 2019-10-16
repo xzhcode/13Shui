@@ -76,6 +76,7 @@ def classify_clr(): #根据花色不同分成四组
     hongtao = []
     meihua = []
     fangkuai = []
+    classify_flw = {}
     while i < 26:
         if poker[i] == '$':
             heitao.append(poker[i+1])
@@ -96,7 +97,7 @@ def classify_clr(): #根据花色不同分成四组
     value.append(hongtao)
     value.append(meihua)
     value.append(fangkuai)
-    classify_flw=dict(zip(key,value))
+    classify_flw=zip(key,value)
     return classify_flw
 def classify_num():#数字数组
     st=[]
@@ -316,292 +317,312 @@ def trans(num):
 
         temp.append(' ')
     return temp
-color = []
-up = []
-mid = []
-down = []
-result = []
-allStyle = []
-value=[]
-key=[]
-idnum=0
 
-name="xxx1010101"
-code="password"
 
-conn = http.client.HTTPSConnection("api.shisanshui.rtxux.xyz")
-payload = "{\"username\":\"name\",\"password\":\"code\"}"
-headers = { 'content-type': "application/json" }
+tim =0
+while tim<10:
+    color = []
+    up = []
+    mid = []
+    down = []
+    result = []
+    allStyle = []
+    value=[]
+    key=[]
+    idnum=0
+    dic={}
 
-conn.request("POST", "/auth/register", payload, headers)
-res = conn.getresponse()
-data = res.read()
+    name="xxx1010101"
+    code="password"
 
-#登录
-seg={}
-conn.request("POST", "/auth/login", payload, headers)
-res = conn.getresponse()
-data = res.read()
-seg = json.loads(data)
-status=seg['status']
-seg=seg['data']
-print('id+tk',seg)
-idnum=seg['user_id']
-token=seg['token']
+    conn = http.client.HTTPSConnection("api.shisanshui.rtxux.xyz")
+    payload = "{\"username\":\"xxx1010101\",\"password\":\"password\"}"
+    headers = { 'content-type': "application/json" }
+    print('payload',payload)
+    conn.request("POST", "/auth/register", payload, headers)
+    res = conn.getresponse()
+    data = res.read()
 
-print('id=',idnum)
-print('token=',token)
-#开始打牌
-headers = { 'x-auth-token': token }
-conn.request("POST", "/game/open", headers=headers)
-res = conn.getresponse()
-data = res.read()
-seg = json.loads(data)
-status=seg['status']
-seg=seg['data']
+    #登录
+    seg={}
+    conn.request("POST", "/auth/login", payload, headers)
+    res = conn.getresponse()
+    data = res.read()
+    seg = json.loads(data)
+    status=seg['status']
+    seg=seg['data']
+    print('id+tk',seg)
+    idnum=seg['user_id']
+    token=seg['token']
 
-gameid=seg['id']
-poker =seg['card']
-print('poker:',poker)
+    print('id=',idnum)
+    print('token=',token)
+    #开始打牌
+    headers = { 'x-auth-token': token }
+    conn.request("POST", "/game/open", headers=headers)
+    res = conn.getresponse()
+    data = res.read()
+    seg = json.loads(data)
+    status=seg['status']
+    seg=seg['data']
 
-color = classify_clr()
-num_cnt, num_all, num_rcd = classify_num()
-# print("init cnt0:",num_cnt)  #记录某张牌的频率
-# print("init all0:",num_all) #0-51 bool数组
-# print("init rcd0:",num_rcd)  # 0-51 从小到大 记录出现的所有牌 13张
+    gameid=seg['id']
+    poker =seg['card']
+    print('poker:',poker)
 
-#找底墩
-allStyle=check_all()
-i=7
-while i>=0:
-    if len(allStyle[i]):
-        if i==6 or i==3 or i==2 or i==1 or i==4:
-            if i==6:    #炸弹 加一张牌 不拆顺子和同花的牌
-                #print(" 底墩牌型： 炸弹")
-                down=(allStyle[i][0])
-                for i in num_rcd : #去找单牌
-                    if i not in down and i not in allStyle[3][0]:
-                        down += i
-                        break
-                    else:
-                        down = down
-            elif i==4:  #同花
-                #print(" 底墩牌型： 同花")
-                down=(allStyle[i][0])
-                if len(down) > 5:
-                    temp = []
-                    temp.append(down[-1])
-                    temp.append(down[-2])
-                    temp.append(down[-3])
-                    temp.append(down[-4])
-                    temp.append(down[-5])
-                    down = temp
-            elif i==3:  #顺子
-                #print(" 底墩牌型： 顺子")
-                down=allStyle[i][0]
-                temp=[]
-                for t in down:
-                    print(t)
-                    for j in range(4):
-                        if num_all[t*4+j]:
-                            temp.append(t*4+j)
+    color = classify_clr()
+    num_cnt, num_all, num_rcd = classify_num()
+    # print("init cnt0:",num_cnt)  #记录某张牌的频率
+    # print("init all0:",num_all) #0-51 bool数组
+    # print("init rcd0:",num_rcd)  # 0-51 从小到大 记录出现的所有牌 13张
+
+    #找底墩
+    allStyle=check_all()
+    i=7
+    while i>=0:
+        if len(allStyle[i]):
+            if i==6 or i==3 or i==2 or i==1 or i==4:
+                if i==6:    #炸弹 加一张牌 不拆顺子和同花的牌
+                    #print(" 底墩牌型： 炸弹")
+                    down=(allStyle[i][0])
+                    for i in num_rcd : #去找单牌
+                        if i not in down and i not in allStyle[3][0]:
+                            down += i
                             break
-                down=temp
-            elif i==2:# 三条
-                #print(" 底墩牌型： 三条")
-                down=(allStyle[i][0])
-                cnt=0
-                for i in num_rcd : #去找单牌
-                    if i not in down :
-                        down += i
-                        cnt+=1
-                        break
-                    else:
-                        down = down
-                    if cnt ==2 :
-                        break
-            elif i==1:# 对子
-                if len(allStyle[i]) >= 2:# 两对
-                    #print(" 底墩牌型： 两对")
-                    temp=allStyle[i][0][:2]
-                    temp+=allStyle[i][1][:2]
-                    temp += (allStyle[0][0])
-                    down = temp
-                else:   #一对
-                    #print(" 底墩牌型： 一对")
-                    down = (allStyle[i][0])
-                    down += allStyle[0][0:3]
-        elif i==0 :
-            #print(" 底墩牌型： 乌龙")
-            temp=allStyle[0]
-            temp=temp[-5:-1]
-            temp += allStyle[0][-1]
-            down = (temp)
-        else:
-            #print(" 底墩牌型： 葫芦 同花顺")
-            down=(allStyle[i][0])
-        print("底墩:",down)
-        print('牌型：',i)
-        num_rcd=list(set(num_rcd).difference(set(down))) #更新num_rcd
-        #更新num_all
-        i=0
-        while i<5:
-            x = down[i]
-            num_all[x] = 0
-            i+=1
-        #更新num_cnt
-        i=0
-        while i<5:
-            x = int(down[i]/4)
-            num_cnt[x]-=1
-            i+=1
-        break
-    i-=1
-
-# print("cnt1:",num_cnt)  #记录某张牌的频率
-# print("all1:",num_all) #0-51 bool数组
-# print("rcd1:",num_rcd)  # 0-51 从小到大 记录出现的所有牌 13张
-#
-
-#找中墩
-allStyle=check_all()
-i=7
-while i >= 0:
-
-    if len(allStyle[i]):
-        print("中盾牌型：")
-        if i == 6 or i==4 or i == 3 or i == 2 or i == 1:
-            if i == 6:  # 炸弹 加一张牌 不拆顺子和同花的牌
-                print("炸弹")
-                mid = (allStyle[i][0])
-                for i in num_rcd : #去找单牌
-                    if i not in mid and i not in allStyle[3][0]:
-                        mid += i
-                        break
-                    else:
-                        mid = mid
-            elif i==4:  #同花
-                print("同花")
-                mid = (allStyle[i][0])
-                if len(mid) > 5:
-                    temp = []
-                    temp.append(down[-1])
-                    temp.append(down[-2])
-                    temp.append(down[-3])
-                    temp.append(down[-4])
-                    temp.append(down[-5])
-                    mid = temp
-            elif i == 3:  # 顺子
-                print("顺子")
-                mid = (allStyle[i][0])
-                temp=[]
-                for t in mid:
-                    print(t)
-                    for j in range(4):
-                        if num_all[t*4+j]:
-                            temp.append(t*4+j)
-                            break
-                mid=temp
-            elif i == 2:#三条 加两张
-                print("三条")
-                mid = (allStyle[i][0])
-                cnt=0
-                for i in num_rcd : #去找单牌
-                    if i not in mid :
-                        mid += i
-                        cnt+=1
-                        break
-                    else:
-                        mid = mid
-                    if cnt ==2 :
-                        break
-            elif i == 1:#对子
-                if len(allStyle[i]) >= 2:# 有两对
-                    temp = []
-                    print("两对")
-                    temp=allStyle[i][0][:2]
-                    temp+=allStyle[i][1][:2]
-                    mid = temp
-                    temp = []
-                    for j in num_rcd:
-                        if j not in mid:
-                            temp.append(j)
-                            break
-                    mid += temp
-                else:   #只有一对
+                        else:
+                            down = down
+                elif i==4:  #同花
+                    #print(" 底墩牌型： 同花")
+                    down=(allStyle[i][0])
+                    if len(down) > 5:
+                        temp = []
+                        temp.append(down[-1])
+                        temp.append(down[-2])
+                        temp.append(down[-3])
+                        temp.append(down[-4])
+                        temp.append(down[-5])
+                        down = temp
+                elif i==3:  #顺子
+                    #print(" 底墩牌型： 顺子")
+                    down=allStyle[i][0]
                     temp=[]
-                 #   print("一对")
-                    mid += allStyle[i][0]
-                    mid += allStyle[0][0:3]
-                    mid += temp
-        elif i == 0:
-          #  print("乌龙")
-            temp =num_rcd[-5:-1]    ###输出后五位
-            temp = num_rcd[-5:-1]
-            mid += (temp)
-            temp = []
-            temp.append(num_rcd[-1])
-            mid += temp
-        else:
-         #   print("葫芦、同花顺")
-            mid.append(allStyle[i][0])
-        print(mid)
-        num_rcd = list(set(num_rcd).difference(set(mid)))  # 更新num_rcd
-        # 更新num_all
-        i=0
-        while i<5 :
-            x=mid[i]
-            num_all[x] = 0
-            i+=1
-        # 更新num_cnt
-        i=0
-      #  print("中墩牌型：",mid)
-        while i<5:
-            x = int(mid[i]/4)
-            num_cnt[x] -= 1
-            i+=1
-        break
-    i -= 1
+                    for t in down:
+                        print(t)
+                        for j in range(4):
+                            if num_all[t*4+j]:
+                                temp.append(t*4+j)
+                                break
+                    down=temp
+                elif i==2:# 三条
+                    #print(" 底墩牌型： 三条")
+                    down=(allStyle[i][0])
+                    cnt=0
+                    for i in num_rcd : #去找单牌
+                        if i not in down :
+                            down += i
+                            cnt+=1
+                            break
+                        else:
+                            down = down
+                        if cnt ==2 :
+                            break
+                elif i==1:# 对子
+                    if len(allStyle[i]) >= 2:# 两对
+                        #print(" 底墩牌型： 两对")
+                        temp =[]
+                        temp.append(allStyle[i][-1][0])
+                        temp.append(allStyle[i][-1][1])
+                        temp.append(allStyle[i][-2][0])
+                        temp.append(allStyle[i][-2][1])
+                        temp.append(allStyle[0][0])
+                        down = temp
+                    else:   #一对
+                        temp = []
+                        #print(" 底墩牌型： 一对")
+                        temp = (allStyle[i][0])
+                        temp.append(allStyle[0][0])
+                        temp.append(allStyle[0][1])
+                        temp.append(allStyle[0][2])
+                        down = temp
+            elif i==0 :
+                #print(" 底墩牌型： 乌龙")
+                temp =[]
+                temp=allStyle[0]
+                temp=temp[-5:-1]
+                temp += allStyle[0][-1]
+                down = temp
+            else:
+                #print(" 底墩牌型： 葫芦 同花顺")
+                down=(allStyle[i][0])
+            print("底墩:",down)
+            print('牌型：',i)
+            num_rcd=list(set(num_rcd).difference(set(down))) #更新num_rcd
+            #更新num_all
+            i=0
+            while i<5:
+                x = down[i]
+                num_all[x] = 0
+                i+=1
+            #更新num_cnt
+            i=0
+            while i<5:
+                x = int(down[i]/4)
+                num_cnt[x]-=1
+                i+=1
+            break
+        i-=1
 
-print("cnt2:",num_cnt)  #记录某张牌的频率
-print("all2:",num_all) #0-51 bool数组
-print("rcd2:",num_rcd)  # 0-51 从小到大 记录出现的所有牌 13张
+    # print("cnt1:",num_cnt)  #记录某张牌的频率
+    # print("all1:",num_all) #0-51 bool数组
+    # print("rcd1:",num_rcd)  # 0-51 从小到大 记录出现的所有牌 13张
+    #
+
+    #找中墩
+    allStyle=check_all()
+    i=7
+    while i >= 0:
+
+        if len(allStyle[i]):
+            print("中盾牌型：")
+            if i == 6 or i==4 or i == 3 or i == 2 or i == 1:
+                if i == 6:  # 炸弹 加一张牌 不拆顺子和同花的牌
+                    print("炸弹")
+                    mid = (allStyle[i][0])
+                    for i in num_rcd : #去找单牌
+                        if i not in mid and i not in allStyle[3][0]:
+                            mid += i
+                            break
+                        else:
+                            mid = mid
+                elif i==4:  #同花
+                    print("同花")
+                    mid = (allStyle[i][0])
+                    if len(mid) > 5:
+                        temp = []
+                        temp.append(down[-1])
+                        temp.append(down[-2])
+                        temp.append(down[-3])
+                        temp.append(down[-4])
+                        temp.append(down[-5])
+                        mid = temp
+                elif i == 3:  # 顺子
+                    print("顺子")
+                    mid = (allStyle[i][0])
+                    temp=[]
+                    for t in mid:
+                        print(t)
+                        for j in range(4):
+                            if num_all[t*4+j]:
+                                temp.append(t*4+j)
+                                break
+                    mid=temp
+                elif i == 2:#三条 加两张
+                    print("三条")
+                    temp=[]
+                    temp += (allStyle[i][0])
+                    mid=[]
+                    cnt=0
+                    for i in num_rcd : #去找单牌
+                        if i not in temp :
+                            temp.append(i)
+                            cnt+=1
+                            break
+                        else:
+                            temp = temp
+                        if cnt ==2 :
+                            mid = temp
+                            break
+                elif i == 1:#对子
+                    if len(allStyle[i]) >= 2:# 有两对
+                        temp = []
+                        print("两对")
+                        temp=allStyle[i][0][:2]
+                        temp+=allStyle[i][1][:2]
+                        mid = temp
+                        temp = []
+                        for j in num_rcd:
+                            if j not in mid:
+                                temp.append(j)
+                                break
+                        mid += temp
+                    else:   #只有一对
+                        temp=[]
+                     #   print("一对")
+                        mid += allStyle[i][0]
+                        mid += allStyle[0][0:3]
+                        mid += temp
+            elif i == 0:
+              #  print("乌龙")
+                temp =num_rcd[-5:-1]    ###输出后五位
+                temp = num_rcd[-5:-1]
+                mid += (temp)
+                temp = []
+                temp.append(num_rcd[-1])
+                mid += temp
+            else:
+             #   print("葫芦、同花顺")
+                mid.append(allStyle[i][0])
+            print('mid:',mid)
+            mid=list(mid)
+            print('mid',mid)
+
+            num_rcd = list(set(num_rcd).difference(set(mid)))  # 更新num_rcd
+            # 更新num_all
+            i=0
+            while i<5 :
+                x=mid[i]
+                num_all[x] = 0
+                i+=1
+            # 更新num_cnt
+            i=0
+          #  print("中墩牌型：",mid)
+            while i<5:
+                x = int(mid[i]/4)
+                num_cnt[x] -= 1
+                i+=1
+            break
+        i -= 1
+
+    # print("cnt2:",num_cnt)  #记录某张牌的频率
+    # print("all2:",num_all) #0-51 bool数组
+    # print("rcd2:",num_rcd)  # 0-51 从小到大 记录出现的所有牌 13张
 
 
-#前墩
-up=num_rcd
-up=trans(up)
-mid=trans(mid)
-down=trans(down)
-up = ''.join(up)
-up=up[:-1]
-mid = ''.join(mid)
-mid= mid[:-1]
+    #前墩
+    up=num_rcd
+    up=trans(up)
+    mid=trans(mid)
+    down=trans(down)
+    up = ''.join(up)
+    up=up[:-1]
+    mid = ''.join(mid)
+    mid= mid[:-1]
 
-down = ''.join(down)
-down=down[:-1]
-result.append(up)
-result.append(mid)
-result.append(down)
+    down = ''.join(down)
+    down=down[:-1]
+    result.append(up)
+    result.append(mid)
+    result.append(down)
 
-print("result", result)
+    print("result", result)
 
-key = ['id','card']
-value.append(gameid)
-value.append(result)
-dict=dict(zip(key,value))
-jsonarr = json.dumps(dict, ensure_ascii=False,indent=True)
-print(jsonarr)
+    key = ['id','card']
+    value.append(gameid)
+    value.append(result)
+    dic = dict(zip(key,value))
+    jsonarr = json.dumps(dic, ensure_ascii=False,indent=True)
+    print(jsonarr)
 
-#出牌
-payload = jsonarr
-print('payload:',payload)
-headers = {
-    'content-type': "application/json",
-    'x-auth-token': token
-    }
-conn.request("POST", "/game/submit", payload, headers)
-res = conn.getresponse()
-data = res.read()
+    #出牌
+    payload = jsonarr
+    print('payload:',payload)
+    headers = {
+        'content-type': "application/json",
+        'x-auth-token': token
+        }
+    conn.request("POST", "/game/submit", payload, headers)
+    res = conn.getresponse()
+    data = res.read()
 
-print(data)
+    print(data)
+    tim+=1
